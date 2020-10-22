@@ -1,0 +1,23 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.dropdown {
+  width: 5rem;
+  text-align-last: center;
+}
+
+.svg-icon {
+  transform: translateY(0.5rem);
+}
+
+li {
+  height: 2.5rem;
+}
+
+#final-result {
+  margin-top: 1rem;
+}
