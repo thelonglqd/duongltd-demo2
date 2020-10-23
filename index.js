@@ -41,116 +41,72 @@ const icons = {
             </svg>`,
 };
 
-const answers = [
-  "suarez",
-  "lionel",
-  "ronaldo",
-  "lukaku",
-  "david",
-  "salah",
-  "klopp",
-];
+const answers = document.getElementById("answer").dataset.answer.split(",");
 
-const options = `<option value="...">...</option>
-            <option value="suarez">suarez</option>
-            <option value="lionel">lionel</option>
-            <option value="ronaldo">ronaldo</option>
-            <option value="david">david</option>
-            <option value="salah">salah</option>
-            <option value="klopp">klopp</option>
-            <option value="lukaku">lukaku</option>`;
-
-let correctAnswer = 0;
+const options = [`<option value="...">...</option>`].concat(
+  answers.map((ans) => `<option value="${ans}">${ans}</option>`)
+);
 
 const selects = document.getElementsByClassName("dropdown");
+
+const appendResultIcon = (el, appendedEl) => {
+  el.nextElementSibling
+    ? el.parentNode.insertBefore(
+        appendedEl,
+        el.nextElementSibling.nextElementSibling
+      )
+    : el.parentNode.insertBefore(appendedEl, el.nextElementSibling);
+};
 
 for (let i = 0; i < selects.length; i++) {
   selects[i].innerHTML = options;
   selects[i].addEventListener("change", () => {
     document.getElementById("checkBtn").disabled = false;
     document.getElementById("finishBtn").disabled = false;
+    document.getElementById("final-result").innerHTML = "";
     const icons = document.getElementsByClassName("icon-result");
     while (icons.length > 0) icons[0].remove();
   });
 }
 
-const onCheck = () => {
+const disableButtons = () => {
   document.getElementById("finishBtn").disabled = true;
   document.getElementById("checkBtn").disabled = true;
+};
+
+const constructResultEle = (isCorrect) => {
+  const ele = document.createElement("span");
+  ele.className = isCorrect ? "icon-result correct" : "icon-result incorrect";
+  ele.innerHTML = isCorrect ? icons.correct : icons.incorrect;
+
+  return ele;
+};
+
+const onCheck = () => {
+  disableButtons();
 
   for (let i = 0; i < selects.length; i++) {
-    if (selects[i].value === answers[i]) {
-      const result = document.createElement("span");
-      result.className = "icon-result";
-      result.innerHTML = icons.correct;
+    const result = constructResultEle(selects[i].value === answers[i]);
+    appendResultIcon(selects[i], result);
+  }
+};
 
-      selects[i].nextElementSibling
-        ? selects[i].parentNode.insertBefore(
-            result,
-            selects[i].nextElementSibling.nextElementSibling
-          )
-        : selects[i].parentNode.insertBefore(
-            result,
-            selects[i].nextElementSibling
-          );
-    } else {
-      const result = document.createElement("span");
-      result.className = "icon-result";
-      result.innerHTML = icons.incorrect;
+const appendScore = () => {
+  document.getElementById("final-result").innerHTML = `<span>${
+    document.getElementsByClassName("correct").length
+  } / ${answers.length}</span>`;
+};
 
-      selects[i].nextElementSibling
-        ? selects[i].parentNode.insertBefore(
-            result,
-            selects[i].nextElementSibling.nextElementSibling
-          )
-        : selects[i].parentNode.insertBefore(
-            result,
-            selects[i].nextElementSibling
-          );
-    }
+const disableSelects = () => {
+  for (let i = 0; i < selects.length; i++) {
+    selects[i].disabled = true;
   }
 };
 
 const onFinish = () => {
-  document.getElementById("finishBtn").disabled = true;
-  document.getElementById("checkBtn").disabled = true;
-
-  for (let i = 0; i < selects.length; i++) {
-    if (selects[i].value === answers[i]) {
-      correctAnswer++;
-      const result = document.createElement("span");
-      result.className = "icon-result";
-      result.innerHTML = icons.correct;
-
-      selects[i].nextElementSibling
-        ? selects[i].parentNode.insertBefore(
-            result,
-            selects[i].nextElementSibling.nextElementSibling
-          )
-        : selects[i].parentNode.insertBefore(
-            result,
-            selects[i].nextElementSibling
-          );
-    } else {
-      const result = document.createElement("span");
-      result.className = "icon-result";
-      result.innerHTML = `${icons.incorrect} - ${answers[i]}`;
-
-      selects[i].nextElementSibling
-        ? selects[i].parentNode.insertBefore(
-            result,
-            selects[i].nextElementSibling.nextElementSibling
-          )
-        : selects[i].parentNode.insertBefore(
-            result,
-            selects[i].nextElementSibling
-          );
-    }
-  }
-
-  document.getElementById(
-    "final-result"
-  ).innerHTML = `<span>${correctAnswer} / ${answers.length}</span>`;
+  onCheck();
+  appendScore();
+  disableSelects();
 };
 
 document.getElementById("checkBtn").addEventListener("click", onCheck);
