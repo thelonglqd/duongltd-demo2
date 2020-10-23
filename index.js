@@ -49,7 +49,7 @@ const options = [`<option value="...">...</option>`].concat(
 
 const selects = document.getElementsByClassName("dropdown");
 
-const appendResultIcon = (el, appendedEl) => {
+const appendResult = (el, appendedEl) => {
   el.nextElementSibling
     ? el.parentNode.insertBefore(
         appendedEl,
@@ -74,21 +74,16 @@ const disableButtons = () => {
   document.getElementById("checkBtn").disabled = true;
 };
 
-const constructResultEle = (isCorrect) => {
+const constructResultEle = (isCorrect, correctAnswer, isCheckHandler) => {
   const ele = document.createElement("span");
   ele.className = isCorrect ? "icon-result correct" : "icon-result incorrect";
-  ele.innerHTML = isCorrect ? icons.correct : icons.incorrect;
+  ele.innerHTML = isCorrect ? `${icons.correct}` : `${icons.incorrect}`;
+
+  !isCheckHandler &&
+    ele.className === "icon-result incorrect" &&
+    (ele.innerHTML += ` - ${correctAnswer}`);
 
   return ele;
-};
-
-const onCheck = () => {
-  disableButtons();
-
-  for (let i = 0; i < selects.length; i++) {
-    const result = constructResultEle(selects[i].value === answers[i]);
-    appendResultIcon(selects[i], result);
-  }
 };
 
 const appendScore = () => {
@@ -103,8 +98,21 @@ const disableSelects = () => {
   }
 };
 
+const onCheck = (isCheckHandler = true) => {
+  disableButtons();
+
+  for (let i = 0; i < selects.length; i++) {
+    const result = constructResultEle(
+      selects[i].value === answers[i],
+      answers[i],
+      isCheckHandler
+    );
+    appendResult(selects[i], result);
+  }
+};
+
 const onFinish = () => {
-  onCheck();
+  onCheck(false);
   appendScore();
   disableSelects();
 };
