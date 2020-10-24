@@ -41,13 +41,18 @@ const icons = {
             </svg>`,
 };
 
-const answers = document.getElementById("answer").dataset.answer.split(",");
+const problems = document.getElementsByClassName("problem");
 
-const options = [`<option value="...">...</option>`].concat(
-  answers.map((ans) => `<option value="${ans}">${ans}</option>`)
-);
-
-const selects = document.getElementsByClassName("dropdown");
+for (let i = 0; i < problems.length; i++) {
+  const radios = problems[i].getElementsByTagName("input");
+  for (let j = 0; j < radios.length; j++) {
+    radios[j].addEventListener("change", () => {
+      enableButtons();
+      const icons = document.getElementsByClassName("icon-result");
+      while (icons.length > 0) icons[0].remove();
+    });
+  }
+}
 
 const appendResult = (el, appendedEl) => {
   el.nextElementSibling
@@ -58,20 +63,14 @@ const appendResult = (el, appendedEl) => {
     : el.parentNode.insertBefore(appendedEl, el.nextElementSibling);
 };
 
-for (let i = 0; i < selects.length; i++) {
-  selects[i].innerHTML = options;
-  selects[i].addEventListener("change", () => {
-    document.getElementById("checkBtn").disabled = false;
-    document.getElementById("finishBtn").disabled = false;
-    document.getElementById("final-result").innerHTML = "";
-    const icons = document.getElementsByClassName("icon-result");
-    while (icons.length > 0) icons[0].remove();
-  });
-}
-
 const disableButtons = () => {
   document.getElementById("finishBtn").disabled = true;
   document.getElementById("checkBtn").disabled = true;
+};
+
+const enableButtons = () => {
+  document.getElementById("finishBtn").disabled = false;
+  document.getElementById("checkBtn").disabled = false;
 };
 
 const constructResultEle = (isCorrect, correctAnswer, isCheckHandler) => {
@@ -89,32 +88,37 @@ const constructResultEle = (isCorrect, correctAnswer, isCheckHandler) => {
 const appendScore = () => {
   document.getElementById("final-result").innerHTML = `<span>${
     document.getElementsByClassName("correct").length
-  } / ${answers.length}</span>`;
+  } / ${problems.length}</span>`;
 };
 
-const disableSelects = () => {
-  for (let i = 0; i < selects.length; i++) {
-    selects[i].disabled = true;
+const disableRadios = () => {
+  for (let i = 0; i < problems.length; i++) {
+    const radios = problems[i].getElementsByTagName("input");
+    for (let j = 0; j < radios.length; j++) {
+      radios[j].disabled = true;
+    }
   }
 };
 
 const onCheck = (isCheckHandler = true) => {
   disableButtons();
+  for (let i = 0; i < problems.length; i++) {
+    const radios = problems[i].getElementsByTagName("input");
+    const { answer } = problems[i].lastElementChild.dataset;
+    let isCorrect = false;
+    for (let j = 0; j < radios.length; j++) {
+      radios[j].checked && radios[j].value === answer && (isCorrect = true);
+    }
 
-  for (let i = 0; i < selects.length; i++) {
-    const result = constructResultEle(
-      selects[i].value === answers[i],
-      answers[i],
-      isCheckHandler
-    );
-    appendResult(selects[i], result);
+    const result = constructResultEle(isCorrect, answer, isCheckHandler);
+    appendResult(problems[i], result);
   }
 };
 
 const onFinish = () => {
   onCheck(false);
   appendScore();
-  disableSelects();
+  disableRadios();
 };
 
 document.getElementById("checkBtn").addEventListener("click", onCheck);
