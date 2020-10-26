@@ -1,8 +1,16 @@
+body {
+  font-size: 28px;
+}
+
 .container {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+}
+
+.list-item {
+  display: list-item;
 }
 
 .dropdown {
@@ -14,8 +22,8 @@
   transform: translateY(0.5rem);
 }
 
-li {
-  height: 2.5rem;
+.radio-button {
+  margin-right: 10px;
 }
 
 #final-result {

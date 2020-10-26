@@ -41,6 +41,8 @@ const icons = {
             </svg>`,
 };
 
+let correctAnswer = 0;
+
 const problems = document.getElementsByClassName("problem");
 
 for (let i = 0; i < problems.length; i++) {
@@ -85,10 +87,10 @@ const constructResultEle = (isCorrect, correctAnswer, isCheckHandler) => {
   return ele;
 };
 
-const appendScore = () => {
-  document.getElementById("final-result").innerHTML = `<span>${
-    document.getElementsByClassName("correct").length
-  } / ${problems.length}</span>`;
+const appendScore = (correct) => {
+  document.getElementById(
+    "final-result"
+  ).innerHTML = `<span>${correct} / ${problems.length}</span>`;
 };
 
 const disableRadios = () => {
@@ -100,24 +102,52 @@ const disableRadios = () => {
   }
 };
 
-const onCheck = (isCheckHandler = true) => {
+const onCheck = () => {
   disableButtons();
   for (let i = 0; i < problems.length; i++) {
     const radios = problems[i].getElementsByTagName("input");
     const { answer } = problems[i].lastElementChild.dataset;
-    let isCorrect = false;
-    for (let j = 0; j < radios.length; j++) {
-      radios[j].checked && radios[j].value === answer && (isCorrect = true);
-    }
 
-    const result = constructResultEle(isCorrect, answer, isCheckHandler);
-    appendResult(problems[i], result);
+    for (let j = 0; j < radios.length; j++) {
+      const label = radios[j].getAttribute("name");
+      radios[j].checked &&
+        (radios[j].value === answer
+          ? (document.querySelectorAll(`[for=${label}]`)[0].style.color =
+              "green")
+          : (document.querySelectorAll(`[for=${label}]`)[0].style.color =
+              "red"));
+    }
   }
 };
 
+const coloringIncorrect = (label, radio, answer, inputIndex) => {
+  const labelEl = document.querySelectorAll(`[for=${label}]`);
+  labelEl[inputIndex].style.color = "red";
+  radio.value === answer && (radio.nextElementSibling.style.color = "green");
+};
+
+const coloringCorrect = (label, inputIndex) => {};
+
 const onFinish = () => {
-  onCheck(false);
-  appendScore();
+  disableButtons();
+  outer: for (let i = 0; i < problems.length; i++) {
+    const radios = problems[i].getElementsByTagName("input");
+    const { answer } = problems[i].lastElementChild.dataset;
+
+    for (let j = 0; j < radios.length; j++) {
+      if (radios[j].checked && radios[j].value === answer) {
+        radios[j].parentNode.parentNode.firstElementChild.style.color = "green";
+        correctAnswer++;
+        continue outer;
+      } else {
+        radios[j].parentNode.parentNode.firstElementChild.style.color = "red";
+        if (radios[j].value === answer)
+          radios[j].nextElementSibling.style.color = "green";
+      }
+    }
+  }
+
+  appendScore(correctAnswer);
   disableRadios();
 };
 
